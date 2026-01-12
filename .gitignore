@@ -1,25 +1,20 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Dependencies
+node_modules/
 
-node_modules
-dist
-dist-ssr
-*.local
+# Build output
+dist/
+build/
+
+# Environment variables
 .env
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# System files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+
+# AI, Editor, and Generated files
+.claude/
+.cursor/
+.cursorrules
+.vscode/
+.idea/
+IMAGE_FIX_README.md
