@@ -15,6 +15,7 @@ export const getCharacterList = async () => {
   return characterListWithDetails;
 };
 
+
 export const getPlanetList = async () => {
   const httpResponse = await fetch(`${SWAPI_URL}planets`);
   const data = await httpResponse.json();

@@ -19,14 +19,14 @@ export default function storeReducer(store, action = {}) {
           todo.id === id ? { ...todo, background: color } : todo
         ),
       };
-    case "add_Favorite":
+    case "add_favorite":
       const { name } = action.payload;
       return { ...store, favoriteList: [...store.favoriteList, name] };
     case "remove_favorite":
-      const favoriteList = store.favoriteList.filter(
+      const favoriteListFiltered = store.favoriteList.filter(
         (item) => item !== action.payload.name
       );
-      return { ...store, favoriteList: favoriteList };
+      return { ...store, favoriteList: favoriteListFiltered };
     case "update_characterList":
       const characterList = action.payload;
       return { ...store, characterList };

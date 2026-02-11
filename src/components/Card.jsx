@@ -1,4 +1,12 @@
+import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+
 export const Card = ({ imgURL, title, children }) => {
+  const { store, dispatch } = useGlobalReducer();
+
+  const addFavorite = () => {
+    dispatch({ type: "add_favorite", payload: { name: title } });
+  };
+
   return (
     <>
       <div className="card">
@@ -10,9 +18,13 @@ export const Card = ({ imgURL, title, children }) => {
             <a href="#" className="btn btn-primary me-5">
               Learn more
             </a>
-            <a href="like" className="btn btn-primary">
+            <button
+              onClick={addFavorite}
+              className="btn btn-primary"
+              type="button"
+            >
               <i className="fa-regular fa-bookmark"></i>
-            </a>
+            </button>
           </div>
         </div>
       </div>
