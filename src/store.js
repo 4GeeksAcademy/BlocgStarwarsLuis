@@ -1,32 +1,62 @@
-export const initialStore=()=>{
-  return{
-    message: null,
-    todos: [
-      {
-        id: 1,
-        title: "Make the bed",
-        background: null,
-      },
-      {
-        id: 2,
-        title: "Do my homework",
-        background: null,
-      }
-    ]
-  }
-}
+const getState = ({ getStore, getActions, setStore }) => {
+    return {
+        store: {
+            people: [],
+            planets: [],
+            vehicles: [],
+            favorites: []
+        },
+        actions: {
+            // Cargar personajes
+            getPeople: async () => {
+                try {
+                    const response = await fetch("https://www.swapi.tech/api/people");
+                    if (!response.ok) throw new Error("Error en getPeople");
+                    const data = await response.json();
+                    setStore({ people: data.results });
+                } catch (error) {
+                    console.error(error);
+                }
+            },
 
-export default function storeReducer(store, action = {}) {
-  switch(action.type){
-    case 'add_task':
+            // Cargar planetas
+            getPlanets: async () => {
+                try {
+                    const response = await fetch("https://www.swapi.tech/api/planets");
+                    if (!response.ok) throw new Error("Error en getPlanets");
+                    const data = await response.json();
+                    setStore({ planets: data.results });
+                } catch (error) {
+                    console.error(error);
+                }
+            },
 
-      const { id,  color } = action.payload
+            // Cargar vehículos
+            getVehicles: async () => {
+                try {
+                    const response = await fetch("https://www.swapi.tech/api/vehicles");
+                    if (!response.ok) throw new Error("Error en getVehicles");
+                    const data = await response.json();
+                    setStore({ vehicles: data.results });
+                } catch (error) {
+                    console.error(error);
+                }
+            },
 
-      return {
-        ...store,
-        todos: store.todos.map((todo) => (todo.id === id ? { ...todo, background: color } : todo))
-      };
-    default:
-      throw Error('Unknown action.');
-  }    
-}
+            // Agregar o eliminar favoritos
+            toggleFavorite: (item) => {
+                const store = getStore();
+                const isFavorite = store.favorites.some(fav => fav.uid === item.uid && fav.type === item.type);
+
+                if (isFavorite) {
+                    const updatedFavs = store.favorites.filter(fav => !(fav.uid === item.uid && fav.type === item.type));
+                    setStore({ favorites: updatedFavs });
+                } else {
+                    setStore({ favorites: [...store.favorites, item] });
+                }
+            }
+        }
+    };
+};
+
+export default getState;
