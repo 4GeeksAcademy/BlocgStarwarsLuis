@@ -1,65 +1,136 @@
-import React, { useEffect, useContext } from "react";
-import { Context } from "../store.js"; 
+import React, { useContext, useEffect, useState } from "react";
+import { Context } from "../store.js";
 import { Link } from "react-router-dom";
 
 export const Home = () => {
     const { store, actions } = useContext(Context);
+    const [activeTab, setActiveTab] = useState("characters");
 
     useEffect(() => {
-        if (store.people.length === 0) actions.getPeople();
-        if (store.planets.length === 0) actions.getPlanets();
-        if (store.vehicles.length === 0) actions.getVehicles();
+        actions.getPeople();
+        actions.getPlanets();
+        actions.getVehicles();
     }, []);
 
  
-    const getImgUrl = (type, uid) => {
-        const category = type === "people" ? "characters" : type;
-        return `https://starwars-visualguide.com/assets/img/${category}/${uid}.jpg`;
+    const categories = [
+        "all", "characters", "planets","vehicles", "more"
+    ];
+
+    const getActiveData = () => {
+        if (activeTab === "characters") return { list: store.people, folder: "characters", type: "people" };
+        if (activeTab === "planets") return { list: store.planets, folder: "planets", type: "planets" };
+        if (activeTab === "vehicles") return { list: store.vehicles, folder: "vehicles", type: "vehicles" };
+        return { list: [], folder: "", type: "" };  
     };
 
-    const renderSection = (title, data, type) => (
-        <div className="mb-5">
-            <h2 className="text-danger mb-4">{title}</h2>
-            <div className="d-flex flex-row flex-nowrap overflow-auto pb-3 gap-4" style={{ scrollbarWidth: "thin" }}>
-                {data.map((item) => {
-                    const itemWithCategory = { ...item, type: type };
-                    const isFav = store.favorites.some(fav => fav.uid === item.uid && fav.type === type);
-
-                    return (
-                        <div className="card bg-dark text-light border-secondary" style={{ minWidth: "18rem", maxWidth: "18rem" }} key={item.uid}>
-                            <img 
-                                src={getImgUrl(type, item.uid)} 
-                                className="card-img-top" 
-                                alt={item.name}
-                                style={{ height: "250px", objectFit: "cover" }}
-                                onError={(e) => { e.target.src = "https://starwars-visualguide.com/assets/img/placeholder.jpg"; }} 
-                            />
-                            <div className="card-body d-flex flex-column justify-content-between">
-                                <h5 className="card-title text-truncate">{item.name}</h5>
-                                <div className="d-flex justify-content-between mt-3">
-                                    <Link to={`/detail/${type}/${item.uid}`} className="btn btn-outline-primary">
-                                        Learn more!
-                                    </Link>
-                                    <button 
-                                        className="btn btn-outline-warning" 
-                                        onClick={() => actions.toggleFavorite(itemWithCategory)}
-                                    >
-                                        <i className={isFav ? "fas fa-heart" : "far fa-heart"}></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
+    const currentCategory = getActiveData();
 
     return (
-        <div className="container-fluid mt-4">
-            {renderSection("Characters", store.people, "people")}
-            {renderSection("Planets", store.planets, "planets")}
-            {renderSection("Vehicles", store.vehicles, "vehicles")}
+        <div className="container-fluid text-light min-vh-100 p-4 p-md-5" style={{ backgroundColor: "#151515" }}>
+            
+
+            <div className="border-bottom border-secondary border-opacity-50 pb-3 mb-4">
+                <h4 className="text-light text-uppercase m-0" style={{ letterSpacing: "1px", fontSize: "18px" }}>
+                    BROWSE DATABANK <span style={{ color: "#d12f2f" }}>//</span>
+                </h4>
+            </div>
+
+            <div className="row mt-4">
+    
+                <div className="col-md-2 mb-4">
+                    <div className="text-secondary mb-3 text-uppercase fw-bold" style={{ fontSize: "11px", letterSpacing: "1.5px" }}>
+                        BROWSE
+                    </div>
+                    <div className="d-flex flex-column gap-3 text-uppercase fw-bold" style={{ fontSize: "13px" }}>
+                        {categories.map((tab) => (
+                            <span
+                                key={tab}
+                                style={{ 
+                                    cursor: "pointer", 
+                                    color: activeTab === tab ? "#ffffff" : "#a3a3a3",
+                                    borderLeft: activeTab === tab ? "3px solid #d12f2f" : "3px solid transparent",
+                                    paddingLeft: "12px",
+                                    transition: "all 0.2s ease"
+                                }}
+                                onClick={() => setActiveTab(tab)}
+                            >
+                                {tab}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+  
+                <div className="col-md-10">
+                    <div className="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                        {currentCategory.list && currentCategory.list.map((item, index) => {
+                            const itemID = item.uid || (item.url ? item.url.split("/").filter(Boolean).pop() : index + 1);
+                            const isFav = store.favorites && store.favorites.some(fav => fav.uid === itemID && fav.type === currentCategory.type);
+                            
+                            return (
+                                <div className="col" key={itemID}>
+                                    <div className="card h-100 border-0 rounded-2 overflow-hidden" style={{ backgroundColor: "#282727" }}>
+                                        <Link to={`/detail/${currentCategory.type}/${itemID}`} className="text-decoration-none">
+                                        
+                                            <div style={{ 
+                                                aspectRatio: "3/4", 
+                                                overflow: "hidden", 
+                                                backgroundColor: "#111",
+                                                borderBottom: "2px solid #b85a6a" 
+                                            }}>
+                                                <img
+                                                    src={`https://starwars-visualguide.com/assets/img/${currentCategory.folder}/${itemID}.jpg`}
+                                                    className="w-100 h-100"
+                                                    style={{ objectFit: "cover", objectPosition: "top" }}
+                                                    alt={item.name}
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = "none";
+                                                        e.currentTarget.parentNode.innerHTML = `<div class="d-flex h-100 align-items-center justify-content-center text-secondary" style="font-size: 10px;">NO IMAGE</div>`;
+                                                    }}
+                                                />
+                                            </div>
+                                        </Link>
+                                        
+
+                                        <div className="card-body p-3 d-flex flex-column justify-content-between">
+                                            <Link to={`/detail/${currentCategory.type}/${itemID}`} className="text-decoration-none text-light mb-2">
+                                                <h6 className="text-uppercase m-0" style={{ fontSize: "13px", fontWeight: "600" }}>
+                                                    {item.name}
+                                                </h6>
+                                            </Link>
+                                            
+                                            <div className="d-flex justify-content-between align-items-center mt-2">
+
+                                                <div style={{ color: "#b85a6a", fontSize: "10px", fontWeight: "bold", letterSpacing: "1px" }}>
+                                                    <i className="fa-solid fa-diagram-project me-1"></i> DATABANK
+                                                </div>
+
+                                                <span
+                                                    style={{ cursor: "pointer", fontSize: "14px" }}
+                                                    className={isFav ? "text-warning" : "text-secondary"}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        actions.toggleFavorite({ uid: itemID, name: item.name, type: currentCategory.type });
+                                                    }}
+                                                >
+                                                    <i className={`${isFav ? "fa-solid" : "fa-regular"} fa-heart`}></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        
+                        {currentCategory.list.length === 0 && (
+                            <div className="col-12 text-secondary mt-5 text-center">
+                                No data available for this category yet.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

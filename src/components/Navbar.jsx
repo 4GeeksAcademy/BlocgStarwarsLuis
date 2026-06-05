@@ -6,49 +6,54 @@ export const Navbar = () => {
     const { store, actions } = useContext(Context);
 
     return (
-        <nav className="navbar navbar-dark bg-dark mb-4 px-5">
-            <Link to="/">
-                <img 
-                    src="https://pngimg.com/uploads/star_wars/star_wars_PNG34.png" 
-                    alt="Star Wars Logo" 
-                    style={{ width: "70px", filter: "invert(1)" }} 
-                />
-            </Link>
-            <div className="dropdown">
-                <button 
-                    className="btn btn-warning dropdown-toggle position-relative" 
-                    type="button" 
-                    id="dropdownMenuButton" 
-                    data-bs-toggle="dropdown" 
-                    aria-expanded="false"
-                >
-                    Favorites
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {store.favorites.length}
-                    </span>
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end bg-dark border-secondary" aria-labelledby="dropdownMenuButton" style={{ width: "240px" }}>
-                    {store.favorites.length === 0 ? (
-                        <li className="dropdown-item text-center text-muted py-2">(Empty)</li>
-                    ) : (
-                        store.favorites.map((fav, index) => (
-                            <li key={index} className="dropdown-item d-flex justify-content-between align-items-center text-light py-2">
-                                <Link 
-                                    to={`/detail/${fav.type}/${fav.uid}`} 
-                                    className="text-decoration-none text-light text-truncate me-2" 
-                                    style={{ maxWidth: "160px" }}
-                                >
-                                    {fav.name}
-                                </Link>
-                                <i 
-                                    className="fas fa-trash-alt text-danger" 
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() => actions.toggleFavorite(fav)}
-                                ></i>
-                            </li>
-                        ))
-                    )}
-                </ul>
+        <nav className="navbar navbar-dark mb-0 px-4 py-3" style={{ backgroundColor: "#111111", borderBottom: "1px solid #333" }}>
+            <div className="container-fluid">
+                <Link to="/" className="navbar-brand">
+                   
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/500px-Star_Wars_Logo.svg.png"
+                        alt="Star Wars"
+                        height="40"
+                    />
+                </Link>
+
+                <div className="ml-auto">
+                    <div className="dropdown">
+                        <button
+                            className="btn btn-warning dropdown-toggle d-flex align-items-center gap-2"
+                            type="button"
+                            id="favoritesDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            <span>Favorites</span>
+                            <span className="badge bg-secondary text-light rounded-pill">
+                                {store.favorites ? store.favorites.length : 0}
+                            </span>
+                        </button>
+                        <ul className="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="favoritesDropdown">
+                            {!store.favorites || store.favorites.length === 0 ? (
+                                <li className="dropdown-item text-center text-muted">Empty</li>
+                            ) : (
+                                store.favorites.map((fav, index) => (
+                                    <li key={index} className="dropdown-item d-flex justify-content-between align-items-center gap-3">
+                                        <Link to={`/detail/${fav.type}/${fav.uid}`} className="text-light text-decoration-none text-uppercase" style={{ fontSize: "14px" }}>
+                                            {fav.name}
+                                        </Link>
+                                        <i
+                                            className="fa-solid fa-trash text-danger"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                actions.toggleFavorite(fav); 
+                                            }}
+                                        ></i>
+                                    </li>
+                                ))
+                            )}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </nav>
     );
